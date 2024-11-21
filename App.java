@@ -10,17 +10,5 @@ public class App {
 //
 //        }
 
-        BinaryTree tree = new BinaryTree();
-        tree.add(50);
-        tree.add(40);
-        tree.add(30);
-        tree.add(20);
-        tree.add(10);
-
-        tree.remove(20);
-        tree.remove(50);
-
-        System.out.println("---------------------");
-        tree.GeraDOT();
     }
 }

@@ -1,56 +1,48 @@
 public class BinaryTree {
     private static final class Node {
-
         private Node parent;
         private Node left;
         private Node right;
-        private Integer  element;
-        private Integer height;
+        private Pokemon element;
+        private int height;
 
-
-        public Node(Integer element) {
+        public Node(Pokemon element) {
             this.element = element;
-            parent = left = right = null;
-            height = 1;
+            this.parent = this.left = this.right = null;
+            this.height = 1;
         }
     }
 
     // Atributos
-    private int count; //contagem do número de nodos
-    private Node root; //referência para o nodo raiz
+    private int count; // Contagem do número de nodos
+    private Node root; // Referência para o nodo raiz
 
     public BinaryTree() {
         count = 0;
         root = null;
     }
 
-    private Node searchNodeRef(Integer element, Node n) {
-        if (element == null || n == null)
-            return null;
-        int c = n.element.compareTo(element);
-        if (c==0)
-            return n;
-        if (c > 0) {
-            return searchNodeRef(element, n.left);
-        }
-        else {
-            return searchNodeRef(element, n.right);
+    private Node searchNodeRef(int id, Node n) {
+        if (n == null) return null;
+
+        int c = Integer.compare(id, n.element.getId());
+        if (c == 0) return n;
+        if (c < 0) {
+            return searchNodeRef(id, n.left);
+        } else {
+            return searchNodeRef(id, n.right);
         }
     }
 
     public boolean isEmpty() {
-        if (root == null){
-            return true;
-        }
-        return false;
+        return root == null;
     }
 
-    public void add(Integer element) {
-        Node newNode = new Node(element);
-        if (isEmpty()){
+    public void add(Pokemon pokemon) {
+        Node newNode = new Node(pokemon);
+        if (isEmpty()) {
             root = newNode;
-        }
-        else{
+        } else {
             addAux(newNode, root);
         }
         count++;
@@ -58,63 +50,101 @@ public class BinaryTree {
     }
 
     private void addAux(Node newNode, Node aux) {
-        if (newNode.element <= aux.element){
-            if(aux.left == null){
+        if (newNode.element.getId() <= aux.element.getId()) {
+            if (aux.left == null) {
                 aux.left = newNode;
                 newNode.parent = aux;
                 updateHeight(aux);
+            } else {
+                addAux(newNode, aux.left);
             }
-            else addAux(newNode, aux.left);
-        }
-        else {
-            if(aux.right == null){
+        } else {
+            if (aux.right == null) {
                 aux.right = newNode;
                 newNode.parent = aux;
                 updateHeight(aux);
+            } else {
+                addAux(newNode, aux.right);
             }
-            else addAux(newNode, aux.right);
         }
     }
 
-    private void updateHeight(Node aux) {
-        int leftHeight = 0;
-        int rightHeight = 0;
+    public void remove(int id) {
+        Node nodeToRemove = searchNodeRef(id, root);
+        if (nodeToRemove == null) return;
 
-        // Verifica se o nó à esquerda existe e, caso exista, usa sua altura
-        if (aux.left != null) {
-            leftHeight = aux.left.height;
+        removeNode(nodeToRemove);
+        count--;
+    }
+
+    private void removeNode(Node node) {
+        if (node.left == null && node.right == null) {
+            if (node.parent == null) {
+                root = null;
+            } else if (node == node.parent.left) {
+                node.parent.left = null;
+            } else {
+                node.parent.right = null;
+            }
+        } else if (node.left != null && node.right == null) {
+            replaceNode(node, node.left);
+        } else if (node.left == null && node.right != null) {
+            replaceNode(node, node.right);
+        } else {
+            Node successor = findMin(node.right);
+            node.element = successor.element;
+            removeNode(successor);
         }
 
-        // Verifica se o nó à direita existe e, caso exista, usa sua altura
-        if (aux.right != null) {
-            rightHeight = aux.right.height;
+        balanceTree(node.parent);
+    }
+
+    private Node findMin(Node node) {
+        while (node.left != null) {
+            node = node.left;
+        }
+        return node;
+    }
+
+    private void replaceNode(Node oldNode, Node newNode) {
+        if (oldNode.parent == null) {
+            root = newNode;
+        } else if (oldNode == oldNode.parent.left) {
+            oldNode.parent.left = newNode;
+        } else {
+            oldNode.parent.right = newNode;
         }
 
-        // Atualiza a altura do nó atual com o valor máximo entre os filhos + 1
-        aux.height = 1 + Math.max(leftHeight, rightHeight);
+        if (newNode != null) {
+            newNode.parent = oldNode.parent;
+        }
+    }
+
+    private void updateHeight(Node node) {
+        int leftHeight = (node.left == null) ? 0 : node.left.height;
+        int rightHeight = (node.right == null) ? 0 : node.right.height;
+        node.height = 1 + Math.max(leftHeight, rightHeight);
     }
 
     private void balanceTree(Node node) {
         Node current = node;
         while (current != null) {
-            updateHeight(current); // Atualiza a altura de cada nó enquanto sobe até a raiz
-            int balanceFactor = getBalanceFactor(current); // Calcula o fator de balanceamento
+            updateHeight(current);
+            int balanceFactor = getBalanceFactor(current);
 
-            // Se o fator de balanceamento for maior que 1, ou menor que -1, a árvore está desbalanceada
             if (balanceFactor > 1) {
                 if (getBalanceFactor(current.left) < 0) {
-                    rotateLeft(current.left); // Rotação dupla (esquerda-direita)
+                    rotateLeft(current.left);
                 }
-                rotateRight(current); // Rotação simples à direita
-            }
-            else if (balanceFactor < -1) {
+                rotateRight(current);
+            } else if (balanceFactor < -1) {
                 if (getBalanceFactor(current.right) > 0) {
-                    rotateRight(current.right); // Rotação dupla (direita-esquerda)
+                    rotateRight(current.right);
                 }
-                rotateLeft(current); // Rotação simples à esquerda
+                rotateLeft(current);
             }
 
-            current = current.parent; // Sobe até o nó pai
+            current = current.parent;
         }
     }
 
@@ -160,82 +190,12 @@ public class BinaryTree {
         updateHeight(newRoot);
     }
 
-
     private int getBalanceFactor(Node node) {
-        int leftHeight = 0;
-        int rightHeight = 0;
-
-        if (node.left != null) {
-            leftHeight = node.left.height;
-        } else {
-            leftHeight = 0;
-        }
-
-        if (node.right != null) {
-            rightHeight = node.right.height;
-        } else {
-            rightHeight = 0;
-        }
-
+        int leftHeight = (node.left == null) ? 0 : node.left.height;
+        int rightHeight = (node.right == null) ? 0 : node.right.height;
         return leftHeight - rightHeight;
     }
 
-    //Método de romoção abaixo:
-
-    public void remove(Integer element) {
-        Node nodeToRemove = searchNodeRef(element, root);
-        if (nodeToRemove == null) {
-            System.out.println("Elemento não encontrado.");
-            return; // Elemento não está na árvore
-        }
-        removeNode(nodeToRemove);
-        count--;
-    }
-
-    private void removeNode(Node node) {
-        // Caso 1: Nó é folha
-        if (node.left == null && node.right == null) {
-            if (node.parent == null) {
-                root = null; // Árvore fica vazia
-            } else {
-                if (node.parent.left == node) {
-                    node.parent.left = null;
-                } else {
-                    node.parent.right = null;
-                }
-            }
-            balanceTree(node.parent);
-        }
-        // Caso 2: Nó tem apenas um filho
-        else if (node.left == null || node.right == null) {
-            Node child = (node.left != null) ? node.left : node.right;
-            if (node.parent == null) {
-                root = child;
-            } else {
-                if (node.parent.left == node) {
-                    node.parent.left = child;
-                } else {
-                    node.parent.right = child;
-                }
-            }
-            child.parent = node.parent;
-            balanceTree(child.parent);
-        }
-        // Caso 3: Nó tem dois filhos
-        else {
-            Node successor = getMin(node.right);
-            node.element = successor.element; // Substitui o valor do nó
-            removeNode(successor); // Remove o sucessor
-        }
-    }
-
-    private Node getMin(Node node) {
-        Node current = node;
-        while (current.left != null) {
-            current = current.left;
-        }
-        return current;
-    }
 
 
 
@@ -243,8 +203,7 @@ public class BinaryTree {
 
 
 
-
-    // Gera uma saida no formato DOT
+// Gera uma saida no formato DOT
     // Esta saida pode ser visualizada no GraphViz
     // Versoes online do GraphViz pode ser encontradas em
     // http://www.webgraphviz.com/
