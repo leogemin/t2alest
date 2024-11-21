@@ -183,78 +183,60 @@ public class BinaryTree {
     //Método de romoção abaixo:
 
     public void remove(Integer element) {
-        root = removeAux(root, element);
+        Node nodeToRemove = searchNodeRef(element, root);
+        if (nodeToRemove == null) {
+            System.out.println("Elemento não encontrado.");
+            return; // Elemento não está na árvore
+        }
+        removeNode(nodeToRemove);
+        count--;
     }
 
-    private Node removeAux(Node node, Integer element) {
-        if (node == null) {
-            return null; // Elemento não encontrado
-        }
-
-        if (element < node.element) {
-            node.left = removeAux(node.left, element); // Continua buscando na subárvore esquerda
-        } else if (element > node.element) {
-            node.right = removeAux(node.right, element); // Continua buscando na subárvore direita
-        } else {
-            // Encontramos o nó a ser removido
-            if (node.left == null && node.right == null) {
-                // Caso 1: Nó folha
-                return null;
-            } else if (node.left == null) {
-                // Caso 2: Apenas um filho (direita)
-                Node temp = node.right;
-                temp.parent = node.parent; // Atualiza o pai
-                return temp;
-            } else if (node.right == null) {
-                // Caso 2: Apenas um filho (esquerda)
-                Node temp = node.left;
-                temp.parent = node.parent; // Atualiza o pai
-                return temp;
+    private void removeNode(Node node) {
+        // Caso 1: Nó é folha
+        if (node.left == null && node.right == null) {
+            if (node.parent == null) {
+                root = null; // Árvore fica vazia
             } else {
-                // Caso 3: Dois filhos
-                Node successor = getMin(node.right); // Menor valor na subárvore direita
-                node.element = successor.element; // Substitui o valor do nó pelo do sucessor
-                node.right = removeAux(node.right, successor.element); // Remove o sucessor
+                if (node.parent.left == node) {
+                    node.parent.left = null;
+                } else {
+                    node.parent.right = null;
+                }
             }
+            balanceTree(node.parent);
         }
-
-        // Atualiza a altura do nó atual após a remoção
-        updateHeight(node);
-
-        // Balanceia a árvore a partir deste nó
-        return balanceTreeAfterRemoval(node); // Ajusta o balanceamento
-    }
-
-
-    private Node balanceTreeAfterRemoval(Node node) {
-        int balanceFactor = getBalanceFactor(node);
-
-        if (balanceFactor > 1) { // Desbalanceado para a esquerda
-            if (getBalanceFactor(node.left) < 0) {
-                // Rotação dupla (esquerda-direita)
-                rotateLeft(node.left);
+        // Caso 2: Nó tem apenas um filho
+        else if (node.left == null || node.right == null) {
+            Node child = (node.left != null) ? node.left : node.right;
+            if (node.parent == null) {
+                root = child;
+            } else {
+                if (node.parent.left == node) {
+                    node.parent.left = child;
+                } else {
+                    node.parent.right = child;
+                }
             }
-            // Rotação simples à direita
-            rotateRight(node);
-        } else if (balanceFactor < -1) { // Desbalanceado para a direita
-            if (getBalanceFactor(node.right) > 0) {
-                // Rotação dupla (direita-esquerda)
-                rotateRight(node.right);
-            }
-            // Rotação simples à esquerda
-            rotateLeft(node);
+            child.parent = node.parent;
+            balanceTree(child.parent);
         }
-
-        return node; // Retorna o nó balanceado
+        // Caso 3: Nó tem dois filhos
+        else {
+            Node successor = getMin(node.right);
+            node.element = successor.element; // Substitui o valor do nó
+            removeNode(successor); // Remove o sucessor
+        }
     }
-
 
     private Node getMin(Node node) {
-        while (node.left != null) {
-            node = node.left;
+        Node current = node;
+        while (current.left != null) {
+            current = current.left;
         }
-        return node;
+        return current;
     }
+
 
 
 
