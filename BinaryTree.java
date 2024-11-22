@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class BinaryTree {
     private static final class Node {
         private Node parent;
@@ -274,4 +276,45 @@ public class BinaryTree {
         GeraConexoesDOT(root);
         System.out.println("}" + "\n");
     }
+
+    public ArrayList<Pokemon> listarPokemonsOrdenadosPorPontosDeCombate() {
+
+        ArrayList<Pokemon> lista = new ArrayList<>();
+        ordemCrescente(root, lista);
+    
+        // Passo 2: Encontrar o maior valor de pontos de combate
+        int maiorPontosDeCombate = 0;
+        for (Pokemon p : lista) {
+            maiorPontosDeCombate = Math.max(maiorPontosDeCombate, p.getPontosCombate());
+        }
+    
+        // Passo 3: Criar as "listasAux" para ordenar
+        ArrayList<ArrayList<Pokemon>> listaAux = new ArrayList<>(maiorPontosDeCombate + 1);
+        for (int i = 0; i <= maiorPontosDeCombate; i++) {
+            listaAux.add(new ArrayList<>());
+        }
+    
+        // Passo 4: Distribuir os Pokémon nas listasAux
+        for (Pokemon p : lista) {
+            listaAux.get(p.getPontosCombate()).add(p);
+        }
+    
+        // Passo 5: Recoletar os Pokémon ordenados
+        ArrayList<Pokemon> ordenados = new ArrayList<>();
+        for (int i = maiorPontosDeCombate; i >= 0; i--) { // Ordem decrescente
+            ordenados.addAll(listaAux.get(i));
+        }
+    
+        return ordenados; // Retorna a lista ordenada
+    }
+    
+    // Método auxiliar para percorrer a AVL em ordem crescente
+    private void ordemCrescente(Node node, ArrayList<Pokemon> lista) {
+        if (node != null) {
+            ordemCrescente(node.left, lista);  // Subárvore esquerda
+            lista.add(node.element);          // Adiciona o Pokémon atual
+            ordemCrescente(node.right, lista); // Subárvore direita
+        }
+    }
+    
 }
