@@ -22,6 +22,10 @@ public class BinaryTree {
         root = null;
     }
 
+    /**
+     * Métodos de busca
+     */
+
     private Node searchNodeRef(int id, Node n) {
         if (n == null) return null;
 
@@ -34,10 +38,24 @@ public class BinaryTree {
         }
     }
 
+    public Pokemon searchByPokedexNumber(int id) {
+        Node node = searchNodeRef(id, root);
+        if (node != null) {
+            return node.element;
+        }
+        return null;
+    }
+
+    /**
+     * Método para verificar se a AVL está vazia
+     */
     public boolean isEmpty() {
         return root == null;
     }
 
+    /**
+     * Métodos para adição de Pokemon na AVL
+     */
     public void add(Pokemon pokemon) {
         Node newNode = new Node(pokemon);
         if (isEmpty()) {
@@ -69,6 +87,9 @@ public class BinaryTree {
         }
     }
 
+    /**
+     * Métodos para remoção de Pokemon na AVL
+     */
     public void remove(int id) {
         Node nodeToRemove = searchNodeRef(id, root);
         if (nodeToRemove == null) return;
@@ -105,6 +126,10 @@ public class BinaryTree {
         }
         return node;
     }
+
+    /**
+     * Métodos auxiliares para remover e adicionar Pokemon na AVL
+     */
 
     private void replaceNode(Node oldNode, Node newNode) {
         if (oldNode.parent == null) {
@@ -195,13 +220,6 @@ public class BinaryTree {
         int rightHeight = (node.right == null) ? 0 : node.right.height;
         return leftHeight - rightHeight;
     }
-
-
-
-
-
-
-
 
 // Gera uma saida no formato DOT
     // Esta saida pode ser visualizada no GraphViz
