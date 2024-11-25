@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class BinaryTree {
     private static final class Node {
@@ -317,4 +318,23 @@ public class BinaryTree {
         }
     }
     
+    // Questão 4:
+    public ArrayList<Pokemon> buscarPorTipoENivel(String tipo, int nivel) {
+        ArrayList<Pokemon> resultado = new ArrayList<>();
+        buscaLinear(root, tipo, nivel, resultado);
+        return resultado;
+    }
+
+    private void buscaLinear(Node node, String tipo, int nivel, List<Pokemon> resultado) {
+        if (node != null) {
+            Pokemon aux = node.element;
+            if (aux.getTipos().contains(tipo) && aux.getNivel() == nivel) {
+                resultado.add(aux); 
+            }
+
+            buscaLinear(node.left, tipo, nivel, resultado);
+            buscaLinear(node.right, tipo, nivel, resultado);
+        }
+    }
+ 
 }
