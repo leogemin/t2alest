@@ -77,6 +77,12 @@ public class BinaryTree {
     /**
      * Métodos para adição de Pokemon na AVL
      */
+    public void carregarCsv(String caminho) {
+        List<Pokemon> tmp = PokemonUtils.lerPokemonsDoCSV(caminho);
+        for(Pokemon p : tmp) {
+            add(p);
+        }
+    }
     public void add(Pokemon pokemon) {
         Node newNode = new Node(pokemon);
         if (isEmpty()) {
