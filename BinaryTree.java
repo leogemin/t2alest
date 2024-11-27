@@ -16,9 +16,8 @@ public class BinaryTree {
         }
     }
 
-    // Atributos
-    private int count; // Contagem do número de nodos
-    private Node root; // Referência para o nodo raiz
+    private int count;
+    private Node root;
 
     public BinaryTree() {
         count = 0;
@@ -40,13 +39,32 @@ public class BinaryTree {
             return searchNodeRef(id, n.right);
         }
     }
-
+    //Funcionalidade 2
     public Pokemon searchByPokedexNumber(int id) {
         Node node = searchNodeRef(id, root);
         if (node != null) {
             return node.element;
         }
         return null;
+    }
+
+    // Funcionalidade 4:
+    public ArrayList<Pokemon> buscarPorTipoENivel(String tipo, int nivel) {
+        ArrayList<Pokemon> resultado = new ArrayList<>();
+        buscaLinear(root, tipo, nivel, resultado);
+        return resultado;
+    }
+
+    private void buscaLinear(Node node, String tipo, int nivel, List<Pokemon> resultado) {
+        if (node != null) {
+            Pokemon aux = node.element;
+            if (aux.getTipos().contains(tipo) && aux.getNivel() == nivel) {
+                resultado.add(aux);
+            }
+
+            buscaLinear(node.left, tipo, nivel, resultado);
+            buscaLinear(node.right, tipo, nivel, resultado);
+        }
     }
 
     /**
@@ -97,11 +115,11 @@ public class BinaryTree {
         Node nodeToRemove = searchNodeRef(id, root);
         if (nodeToRemove == null) return;
 
-        removeNode(nodeToRemove);
+        removeAux(nodeToRemove);
         count--;
     }
 
-    private void removeNode(Node node) {
+    private void removeAux(Node node) {
         if (node.left == null && node.right == null) {
             if (node.parent == null) {
                 root = null;
@@ -117,7 +135,7 @@ public class BinaryTree {
         } else {
             Node successor = findMin(node.right);
             node.element = successor.element;
-            removeNode(successor);
+            removeAux(successor);
         }
 
         balanceTree(node.parent);
@@ -224,6 +242,50 @@ public class BinaryTree {
         return leftHeight - rightHeight;
     }
 
+    /**
+     * Funcionalidade 3: Listagem por pontos de combate
+     */
+
+    public ArrayList<Pokemon> listarPokemonsOrdenadosPorPontosDeCombate() {
+
+        ArrayList<Pokemon> lista = new ArrayList<>();
+        ordemCrescente(root, lista);
+
+        // Passo 2: Encontrar o maior valor de pontos de combate
+        int maiorPontosDeCombate = 0;
+        for (Pokemon p : lista) {
+            maiorPontosDeCombate = Math.max(maiorPontosDeCombate, p.getPontosCombate());
+        }
+
+        // Passo 3: Criar as "listasAux" para ordenar
+        ArrayList<ArrayList<Pokemon>> listaAux = new ArrayList<>(maiorPontosDeCombate + 1);
+        for (int i = 0; i <= maiorPontosDeCombate; i++) {
+            listaAux.add(new ArrayList<>());
+        }
+
+        // Passo 4: Distribuir os Pokémon nas listasAux
+        for (Pokemon p : lista) {
+            listaAux.get(p.getPontosCombate()).add(p);
+        }
+
+        // Passo 5: Recoletar os Pokémon ordenados
+        ArrayList<Pokemon> ordenados = new ArrayList<>();
+        for (int i = maiorPontosDeCombate; i >= 0; i--) { // Ordem decrescente
+            ordenados.addAll(listaAux.get(i));
+        }
+
+        return ordenados; // Retorna a lista ordenada
+    }
+
+    // Método auxiliar para percorrer a AVL em ordem crescente
+    private void ordemCrescente(Node node, ArrayList<Pokemon> lista) {
+        if (node != null) {
+            ordemCrescente(node.left, lista);  // Subárvore esquerda
+            lista.add(node.element);          // Adiciona o Pokémon atual
+            ordemCrescente(node.right, lista); // Subárvore direita
+        }
+    }
+
 // Gera uma saida no formato DOT
     // Esta saida pode ser visualizada no GraphViz
     // Versoes online do GraphViz pode ser encontradas em
@@ -276,65 +338,6 @@ public class BinaryTree {
         System.out.println("");
         GeraConexoesDOT(root);
         System.out.println("}" + "\n");
-    }
-
-    public ArrayList<Pokemon> listarPokemonsOrdenadosPorPontosDeCombate() {
-
-        ArrayList<Pokemon> lista = new ArrayList<>();
-        ordemCrescente(root, lista);
-    
-        // Passo 2: Encontrar o maior valor de pontos de combate
-        int maiorPontosDeCombate = 0;
-        for (Pokemon p : lista) {
-            maiorPontosDeCombate = Math.max(maiorPontosDeCombate, p.getPontosCombate());
-        }
-    
-        // Passo 3: Criar as "listasAux" para ordenar
-        ArrayList<ArrayList<Pokemon>> listaAux = new ArrayList<>(maiorPontosDeCombate + 1);
-        for (int i = 0; i <= maiorPontosDeCombate; i++) {
-            listaAux.add(new ArrayList<>());
-        }
-    
-        // Passo 4: Distribuir os Pokémon nas listasAux
-        for (Pokemon p : lista) {
-            listaAux.get(p.getPontosCombate()).add(p);
-        }
-    
-        // Passo 5: Recoletar os Pokémon ordenados
-        ArrayList<Pokemon> ordenados = new ArrayList<>();
-        for (int i = maiorPontosDeCombate; i >= 0; i--) { // Ordem decrescente
-            ordenados.addAll(listaAux.get(i));
-        }
-    
-        return ordenados; // Retorna a lista ordenada
-    }
-    
-    // Método auxiliar para percorrer a AVL em ordem crescente
-    private void ordemCrescente(Node node, ArrayList<Pokemon> lista) {
-        if (node != null) {
-            ordemCrescente(node.left, lista);  // Subárvore esquerda
-            lista.add(node.element);          // Adiciona o Pokémon atual
-            ordemCrescente(node.right, lista); // Subárvore direita
-        }
-    }
-    
-    // Questão 4:
-    public ArrayList<Pokemon> buscarPorTipoENivel(String tipo, int nivel) {
-        ArrayList<Pokemon> resultado = new ArrayList<>();
-        buscaLinear(root, tipo, nivel, resultado);
-        return resultado;
-    }
-
-    private void buscaLinear(Node node, String tipo, int nivel, List<Pokemon> resultado) {
-        if (node != null) {
-            Pokemon aux = node.element;
-            if (aux.getTipos().contains(tipo) && aux.getNivel() == nivel) {
-                resultado.add(aux); 
-            }
-
-            buscaLinear(node.left, tipo, nivel, resultado);
-            buscaLinear(node.right, tipo, nivel, resultado);
-        }
     }
  
 }
