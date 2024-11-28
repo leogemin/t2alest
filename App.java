@@ -1,9 +1,9 @@
 public class App {
 
-    private BinaryTree pokemons;
+    private AVLdex pokemons;
 
     public App() {
-        this.pokemons = new BinaryTree();
+        this.pokemons = new AVLdex();
     }
 
     public void executar() {

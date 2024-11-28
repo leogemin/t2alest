@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class BinaryTree {
+public class AVLdex {
     private static final class Node {
         private Node parent;
         private Node left;
@@ -19,7 +19,7 @@ public class BinaryTree {
     private int count;
     private Node root;
 
-    public BinaryTree() {
+    public AVLdex() {
         count = 0;
         root = null;
     }
